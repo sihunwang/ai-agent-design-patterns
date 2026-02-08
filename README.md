@@ -1,5 +1,5 @@
 # ai-agent-design-patterns
-[한국어 README 보기](README.ko.md)
+[Try Korean: 한국어 README 보기](README.ko.md)
 
 ## AI Agent Design Patterns (From Scratch → Frameworks)
 
