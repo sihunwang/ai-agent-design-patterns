@@ -1,7 +1,8 @@
 from openai import AsyncOpenAI, OpenAI
+from config import OPENAI_API_KEY
 
 # API Key 입력
-OPENAI_API_KEY = "API_key_입력"
+#OPENAI_API_KEY = "API_key_입력"
 
 # 클라이언트 생성 
 sync_client = OpenAI(
