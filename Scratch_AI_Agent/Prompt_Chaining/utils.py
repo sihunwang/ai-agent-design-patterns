@@ -1,5 +1,6 @@
 from openai import AsyncOpenAI, OpenAI
-from Scratch_AI_Agent.ai_agent.config import OPENAI_API_KEY
+from config import OPENAI_API_KEY
+# from Scratch_AI_Agent.ai_agent.config import OPENAI_API_KEY
 
 # API Key 입력
 #OPENAI_API_KEY = "API_key_입력"

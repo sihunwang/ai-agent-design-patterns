@@ -1,15 +1,16 @@
 from openai import OpenAI
+from config import OPENAI_API_KEY
 
 client = OpenAI(
-    api_key = "API_key_입력"
+    api_key = OPENAI_API_KEY
 )
 
 # 대화 내역을 저장할 리스트 선언 
-message_history = []
+message_history = [] # 처음부터 끝까지의 모든 기록을 저장 중 
 
 # 대화 시작
 while True:
-    user_input = input("사용자: ")
+    user_input = input("사용자: ") #사용자: input 요구
     # 사용자의 질문을 리스트에 추가 
     message_history.append({"role": "user", "content": user_input})
     # API 요청 및 응답

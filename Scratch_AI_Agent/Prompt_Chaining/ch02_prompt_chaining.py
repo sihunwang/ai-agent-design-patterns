@@ -3,6 +3,7 @@ from utils import llm_call
 from typing import List
 
 # 프롬프트 체이닝 함수 선언
+# types prevent autocomplete and warnings and provides readability
 def prompt_chain_workflow(initial_input: str, prompt_chain: List[str]) -> List[str]:
     response_chain = []
     response = initial_input
