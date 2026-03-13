@@ -103,7 +103,7 @@ if __name__ == "__main__":
     st.set_page_config(page_title="라우팅 에이전트", layout="centered")
 
     # 웹페이지 상단 제목
-    st.title("🤖 라우팅 에이전트")
+    st.title("🤖 Routing Agent")
 
     # 설명 텍스트 출력
     st.markdown(

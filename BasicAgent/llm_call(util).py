@@ -1,5 +1,5 @@
 from openai import OpenAI
-from config import OPENAI_API_KEY
+from Scratch_AI_Agent.Prompt_Chaining.config import OPENAI_API_KEY
 
 # 클라이언트 생성 
 sync_client = OpenAI(
