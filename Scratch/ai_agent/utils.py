@@ -28,7 +28,7 @@ async_client = AsyncOpenAI(
 async def llm_call_async(prompt: str, model: str = "gpt-4o-mini") -> str:
     messages = []
     messages.append({"role": "user", "content": prompt})
-    chat_completion = await async_client.chat.completions.create(
+    chat_completion = await async_client.chat.completions.create(  #chat: older style
         model=model,
         messages=messages,
     )
