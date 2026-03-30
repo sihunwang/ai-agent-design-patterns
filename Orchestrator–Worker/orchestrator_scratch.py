@@ -78,11 +78,14 @@ async def run_orchestrator_workflow(user_query):
     # 오케스트레이터 LLM 호출
     orchestrator_response = llm_call(orchestrator_prompt, model="gpt-4o") # 프롬프트 응답 생성 (오케스트레이션 완료)
 
+    # 디버깅용 코드. 출력용
     # 형식 파싱
     # LLM 응답에 포함된 ```json 코드 블록 제거 후 JSON 파싱
     subtask_list = json.loads(
         orchestrator_response.replace('```json', '').replace('```', '')
     )
+    # ```json -> 삭제
+    # ``` -> 삭제
 
     # 사용자를 위한 출력 
     # 생성된 하위 질문 출력
