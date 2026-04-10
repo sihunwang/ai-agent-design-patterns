@@ -73,22 +73,23 @@ async def run_orchestrator_workflow(user_query):
     # ==================================
     # 1단계 : 오케스트레이터/사용자 질문을 하위 질문으로 분해
     # ==================================
-    orchestrator_prompt = get_orchestrator_prompt(user_query) #프롬프트 양식 그래도 사용자 질문만 추가
+    orchestrator_prompt = get_orchestrator_prompt(user_query) # 하위 질문 생성 프롬프트 양식 + 사용자 질문
 
     # 오케스트레이터 LLM 호출
-    orchestrator_response = llm_call(orchestrator_prompt, model="gpt-4o") # 프롬프트 응답 생성 (오케스트레이션 완료)
+    orchestrator_response = llm_call(orchestrator_prompt, model="gpt-4o") # 위에서 생성한 프롬프트를 llm에 넣어 응답 생성 (오케스트레이션 완료)
 
-    # 디버깅용 코드. 출력용
     # 형식 파싱
     # LLM 응답에 포함된 ```json 코드 블록 제거 후 JSON 파싱
     subtask_list = json.loads(
-        orchestrator_response.replace('```json', '').replace('```', '')
+        orchestrator_response.replace('```json', '').replace('```', '')     # ```json -> 삭제,  ``` -> 삭제
     )
-    # ```json -> 삭제
-    # ``` -> 삭제
 
-    # 사용자를 위한 출력 
-    # 생성된 하위 질문 출력
+    #     {{
+    #     "question": "하위 질문 2",
+    #     "description": "이 하위 질문의 요지와 의도에 대한 설명"
+    # }}
+
+    # 사용자를 위한 생성된 하위 질문 출력
     for i, subtask in enumerate(subtask_list, start=1):
         print(f"\n--- 하위 질문 {i} ---")
         print("질문:", subtask['question']) # 하위 질문
@@ -97,6 +98,17 @@ async def run_orchestrator_workflow(user_query):
     # ==================================
     # 2단계 : 각 하위 질문을 처리할 워커 프롬프트 생성
     # ==================================
+        
+    # worker_prompt_details = [
+    # {
+    #     "user_prompt": "프롬프트 문자열 1",
+    #     "model": "gpt-4.1"
+    # },
+    # {
+    #     "user_prompt": "프롬프트 문자열 1",
+    #     "model": "gpt-4.1"
+    # },
+
     worker_prompt_details = [
         {
             "user_prompt": get_worker_prompt(
@@ -108,6 +120,8 @@ async def run_orchestrator_workflow(user_query):
         }
         for subtask in subtask_list
     ]
+    # subtask_list: 딕셔너리 리스트
+    # subtask: 딕셔너리
 
     # # 첫 번째 워커 프롬프트 확인 (디버깅용)
     # print("\n=========== 샘플 워커 프롬프트 ===========")
