@@ -12,7 +12,7 @@ from utils import llm_call, llm_search_async
 # ================================
 # 사용자 질문을 여러 개의 하위 질문으로 분해하도록
 # LLM에게 지시하는 프롬프트를 생성한다.
-def get_orchestrator_prompt(user_query):
+def get_orchestrator_prompt(user_query): #만약, 모델선정까지 자유롭게 맡기고 싶다면, 이때 모델 파라미터 생성 model
     return f"""
         다음 사용자 질문을 분석한 뒤, 이를 3개 이내의 관련 하위 질문으로 분해해.
         결과는 JSON 배열로 출력해.
@@ -48,22 +48,32 @@ def get_worker_prompt(user_query, question, description):
             """
 
 
+    # prompt_details = worker_prompt_details = [
+    # {
+    #     "user_prompt": "sub 질문자열 1",
+    #     "model": "gpt-4.1"
+    # },
+    # {
+    #     "user_prompt": "sub 질문자열 2",
+    #     "model": "gpt-4.1"
+    # },
+
 # ==================================
 # 여러 LLM 요청을 병렬로 실행하는 함수
 # ==================================
-# 여러 워커 LLM 호출을 동시에 실행하기 위해 asyncio를 사용
-async def run_llm_parallel(prompt_details):
+# 여러 워커 LLM(하위질문) 호출을 동시에 실행하기 위해 asyncio를 사용
+async def run_llm_parallel(prompt_details): # worker_prompt_details
 
     # 각 워커 작업을 Task로 생성
     tasks = [
-        llm_search_async(item['user_prompt'], item['model'])
+        llm_search_async(item['user_prompt'], item['model']) # 작업 예약
         for item in prompt_details
     ]
 
     # asyncio.gather를 사용해 모든 작업을 병렬 실행
-    responses = await asyncio.gather(*tasks)
+    responses = await asyncio.gather(*tasks) #실제로 동시에 실행된다. # gather: return 값을 모아서 list로 반환
 
-    return responses
+    return responses # list of strings ["r1", "r2", "r3"]
 
 
 # ==================================
@@ -76,14 +86,14 @@ async def run_orchestrator_workflow(user_query):
     orchestrator_prompt = get_orchestrator_prompt(user_query) # 하위 질문 생성 프롬프트 양식 + 사용자 질문
 
     # 오케스트레이터 LLM 호출
-    orchestrator_response = llm_call(orchestrator_prompt, model="gpt-4o") # 위에서 생성한 프롬프트를 llm에 넣어 응답 생성 (오케스트레이션 완료)
+    orchestrator_response = llm_call(orchestrator_prompt, model="gpt-4o") # 위에서 생성한 프롬프트를 llm에 넣어 하위 질문 (응답) 생성 (오케스트레이션 완료)
 
     # 형식 파싱
     # LLM 응답에 포함된 ```json 코드 블록 제거 후 JSON 파싱
     subtask_list = json.loads(
         orchestrator_response.replace('```json', '').replace('```', '')     # ```json -> 삭제,  ``` -> 삭제
     )
-
+    # subtask_list
     #     {{
     #     "question": "하위 질문 2",
     #     "description": "이 하위 질문의 요지와 의도에 대한 설명"
@@ -101,11 +111,11 @@ async def run_orchestrator_workflow(user_query):
         
     # worker_prompt_details = [
     # {
-    #     "user_prompt": "프롬프트 문자열 1",
+    #     "user_prompt": "sub 질문자열 1",
     #     "model": "gpt-4.1"
     # },
     # {
-    #     "user_prompt": "프롬프트 문자열 1",
+    #     "user_prompt": "sub 질문자열 2",
     #     "model": "gpt-4.1"
     # },
 
@@ -120,8 +130,8 @@ async def run_orchestrator_workflow(user_query):
         }
         for subtask in subtask_list
     ]
-    # subtask_list: 딕셔너리 리스트
-    # subtask: 딕셔너리
+    # subtask_list: list of dictionary 
+    # subtask: 딕셔너리 (question, dictionanry)
 
     # # 첫 번째 워커 프롬프트 확인 (디버깅용)
     # print("\n=========== 샘플 워커 프롬프트 ===========")
@@ -130,7 +140,9 @@ async def run_orchestrator_workflow(user_query):
     # ==================================
     # 3단계 : 워커 LLM 병렬 실행
     # ==================================
-    worker_responses = await run_llm_parallel(worker_prompt_details)
+    worker_responses = await run_llm_parallel(worker_prompt_details) #비동기 처리로 작업 예약 후 gather로 한꺼번에 처리
+    # list of strings ["r1", "r2", "r3"]
+
 
     print("\n=========== 워커 응답 결과 ===========")
     for i, response in enumerate(worker_responses, 1):
